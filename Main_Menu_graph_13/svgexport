@@ -1,0 +1,54 @@
+  double width, height;
+  int i;
+  cairo_t *cr;
+  cairo_surface_t *surface;
+gchar *graph_name="default_graph";
+/*######################################*/
+/*Export Dialog*/
+/*Build the Export Dialog with an file chooser dialog*/
+/*######################################*/
+
+static void file_export (GtkWidget *widget, GtkWindow *window)
+{
+	#if DEBUG
+   GtkWidget *dialog;
+   gchar *filename;
+   GtkFileFilter *filter;
+   dialog = gtk_file_chooser_dialog_new ("Export", window,
+                                         GTK_FILE_CHOOSER_ACTION_SAVE,
+                                         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                         GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+                                         NULL);
+                                         
+   gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (dialog), "Recorded_Data.svg");
+   gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (dialog), TRUE);
+   /*Set File Filter for File Open Dialog*/
+  filter = gtk_file_filter_new ();
+  gtk_file_filter_set_name(filter,"svg");
+  gtk_file_filter_add_pattern (filter,"*.svg");
+  gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (dialog),filter);
+   gint result = gtk_dialog_run (GTK_DIALOG (dialog));
+   if (result == GTK_RESPONSE_ACCEPT)
+   {
+     filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+     g_print ("Exported File: %s\n", filename);
+   }
+      gtk_widget_destroy (dialog);
+   #endif
+   surface = cairo_svg_surface_create("svgfile.svg", width+50, height+50);
+  cr = cairo_create(surface);
+  // draw the grid
+  draw_grid (cr);
+  // set the line width
+  cairo_set_line_width (cr, 0.75);
+  // set the drawing color
+  cairo_set_source_rgb (cr, 0.5, 0.0, 0.5);
+  for (i = 0; i < 10*GRID; i++) {
+    cairo_move_to (cr, i * (width/100)+xoff/2,ysize-valueb[i]+yoff/2);
+    cairo_line_to (cr,(i+1)*(width/100)+xoff/2,ysize-valueb[i+1]+yoff/2);
+    cairo_stroke (cr);
+  }
+  cairo_surface_destroy(surface);
+  cairo_destroy (cr);
+
+}
